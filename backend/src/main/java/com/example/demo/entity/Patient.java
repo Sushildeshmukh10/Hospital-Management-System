@@ -40,8 +40,9 @@ public class Patient {
 	private Date bornDate;
 	private String gender;
 	
-	@Enumerated(EnumType.ORDINAL)
+	@Enumerated(EnumType.STRING)
 	private City city;
+
 
 	@Column(name = "email", unique = true)
 	private String email;

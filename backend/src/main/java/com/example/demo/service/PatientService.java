@@ -29,26 +29,23 @@ public class PatientService {
 		this.logger = logger;
 	}
 
-	public List<PatientDto> findAll() throws Exception {
-		try { 
-			// List<Patient> patients = patientRepository.findAllByOrderByPatientidAsc();
-			List<Patient> patients = patientRepository.findAllByStatusEquelsOne();
-			if (patients.size() < 1) {
-				logger.error("There is never patients ");
-				throw new PatientNotFoundException("There is never patient ");
-			}
-			PatientDto[] dtos = modelMapper.map(patients, PatientDto[].class);
-			List<PatientDto> patientDtos = Arrays.asList(dtos);
-			patientDtos.forEach(patient->{
-				patient.getProblems().forEach(problem->{
-					problem.setPId(patient.getPatientid());
-				});
-			});
-			return Arrays.asList(dtos);
-		} catch (Exception e) {
-			throw new Exception(e);
-		}
-	}
+	public List<PatientDto> findAll() {
+
+    List<Patient> patients = patientRepository.findAllByStatusEquelsOne();
+
+    // ✅ EMPTY LIST IS VALID — NO EXCEPTION
+    PatientDto[] dtos = modelMapper.map(patients, PatientDto[].class);
+    List<PatientDto> patientDtos = Arrays.asList(dtos);
+
+    patientDtos.forEach(patient -> {
+        patient.getProblems().forEach(problem -> {
+            problem.setPId(patient.getPatientid());
+        });
+    });
+
+    return patientDtos;
+}
+
 
 	public List<PatientDto> findAllDeletedPatients() { 
 		List<Patient> patients = patientRepository.findAllByStatusEquelsZero(); 

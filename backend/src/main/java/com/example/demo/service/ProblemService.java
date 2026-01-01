@@ -35,10 +35,12 @@ public class ProblemService {
 	}
 
 	public ProblemDtoForPatientSingleDto save(ProblemDto dto) throws NotFoundException {
-		Optional<Patient> patient = patientRepository.findById(dto.getPId());
+		Optional<Patient> patient = patientRepository.findById(dto.getPatientid());
+
 		if (!patient.isPresent()) {
-			logger.error("Patient does already exist wtih patientid : " + dto.getPId());
-			throw new NotFoundException("Patient does already exist with patientid : " + dto.getPId());
+			logger.error("Patient does not exist with patientid : " + dto.getPatientid());
+			throw new NotFoundException("Patient does not exist with patientid : " + dto.getPatientid());
+
 		}
 		Problem problem = modelMapper.map(dto, Problem.class);
 		problem.setPatient(patient.get());
@@ -79,14 +81,15 @@ public class ProblemService {
 		return true;
 	}
 
-	public List<ProblemDtoForPatientSingleDto> findAllByPatientid(Long patientid) throws NotFoundException {
-		List<Problem> list = problemRepository.findByPatientidWithStatusOne(patientid);
-		if(list.size()>0) {
-			
-			return Arrays.asList(modelMapper.map(list, ProblemDtoForPatientSingleDto[].class));
-		}
-		logger.error("Problem does not exist wtih patientid : " + patientid);
-		throw new NotFoundException("Problem does not exist with patientid : " + patientid);
-	}
+	public List<ProblemDtoForPatientSingleDto> findAllByPatientid(Long patientid) {
+
+    List<Problem> list = problemRepository.findByPatientidWithStatusOne(patientid);
+
+    // ✅ EMPTY LIST IS OK — DO NOT THROW EXCEPTION
+    return Arrays.asList(
+        modelMapper.map(list, ProblemDtoForPatientSingleDto[].class)
+    );
+}
+
 
 }

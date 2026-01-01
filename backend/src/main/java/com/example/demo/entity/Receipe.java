@@ -21,23 +21,28 @@ import lombok.ToString;
 @Entity
 @Table(name="aareceipe")
 public class Receipe {
-	
-	@Id
+
+    @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "AA_PATIENT_SEQ")
     @SequenceGenerator(sequenceName = "AA_PATIENT_SEQ", allocationSize = 1, name = "AA_PATIENT_SEQ")
-	@Column(name = "receipeid")
-	private Long receipeid;
-	
-	private String detail;
-	private String barcode;
-	private String drug_detail;
-	private String usage;
-	private String delivery_date;
-	private Long problemid;
-	private Long patientid;
-	private int status;
-    @ManyToOne(optional = true, fetch = FetchType.LAZY)
+    @Column(name = "receipeid")
+    private Long receipeid;
+
+    private String detail;
+    private String barcode;
+
+    @Column(name = "drug_detail")
+    private String drugDetail;
+
+    @Column(name = "usage_instruction")   // ✅ FIX
+    private String usage;
+
+    private String delivery_date;
+    private Long problemid;
+    private Long patientid;
+    private int status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id")
     private Problem problem;
-	
 }

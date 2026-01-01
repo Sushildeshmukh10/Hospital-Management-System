@@ -15,13 +15,13 @@ import lombok.ToString;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-public class ProblemDto implements Serializable {
+public class ProblemDto {
 
-	private String problemName;
-	private String problemDetail;
-	private ProblemStatus problemStatus;
-	private Long pId;
-	private int status;
-	private Date creationDate;
+    private String problemName;
+    private String problemDetail;
+    private ProblemStatus problemStatus;
+
+    private Long patientid;   // ✅ SAME AS JSON
+
+    private int status;
 }

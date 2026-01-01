@@ -12,138 +12,179 @@ class AddPatientComponent extends Component {
             name: '',
             lastname: '',
             email: '',
-            phoneNo:'',
+            phoneNo: '',
             gender: 'Male',
             city: 'ANKARA',
             bornDate: new Date(),
             status: 1,
             cities: []
-        }
-        // this.saveUser = this.saveUser.bind(this);
+        };
+    }
+
+    componentDidMount() {
         this.getAllCities();
     }
-    getAllCities() {
-        PatientService.getCities().then(res => {
-            this.setState({ cities: res.data });
 
-        });
+    getAllCities() {
+        PatientService.getCities()
+            .then(res => {
+                this.setState({ cities: res.data });
+            })
+            .catch(() => {
+                AlertifyService.alert("Failed to load cities");
+            });
     }
+
     controlQuickly() {
-        return this.state.name === null || this.state.name === '' || this.state.name === ' ' ||
-            this.state.lastname === null || this.state.lastname === '' || this.state.lastname === ' ';
+        return (
+            !this.state.name.trim() ||
+            !this.state.lastname.trim() ||
+            !this.state.phoneNo.trim()
+        );
     }
+
     saveUser = (e) => {
-        if (!this.controlQuickly()) {
-            e.preventDefault();
-            let patient = this.state;
-            PatientService.addPatient(patient)
-                .then(res => {
-                    this.setState({ message: 'User added successfully.' });
-                    this.props.history.push('/patients');
-                    alertify.success("Adding patient is ok");
-                }).catch((error) => {
-                    console.log(error.response)
-                    if (error.response) {
-                        this.setState({ errorMessage: error.response.data.message, patientid: null });
-                        AlertifyService.alert(error.response.data.message);
-                        //this.props.history.push('/patients');
-                    }
-                    else if (error.request) console.log(error.request);
-                    else console.log(error.message);
-                });
-        } else
-            AlertifyService.alert(' * işaretli alanları doldurunuz...');
+        e.preventDefault();
+
+        if (this.controlQuickly()) {
+            AlertifyService.alert("Please fill all required (*) fields");
+            return;
+        }
+
+        // ✅ BACKEND COMPATIBLE PAYLOAD
+        const patient = {
+            name: this.state.name.trim(),
+            lastname: this.state.lastname.trim(),
+            phoneNo: String(this.state.phoneNo),
+            email: this.state.email,
+            gender: this.state.gender.toUpperCase(), // MALE / FEMALE
+            city: this.state.city,
+            bornDate: this.state.bornDate
+                .toISOString()
+                .split("T")[0], // yyyy-MM-dd
+            status: 1
+        };
+
+        console.log("Sending patient =>", patient);
+
+        PatientService.addPatient(patient)
+            .then(() => {
+                alertify.success("Patient added successfully");
+                this.props.history.push('/patients');
+            })
+            .catch(error => {
+                console.error("Backend error =>", error.response?.data);
+                AlertifyService.alert(
+                    error.response?.data?.message || "Invalid patient data"
+                );
+            });
     }
-    onChangeData(type, data) {
-        const stateData = this.state;
-        stateData[type] = data;
-        this.setState({ stateData });
+
+    onChangeData = (key, value) => {
+        this.setState({ [key]: value });
     }
+
     back() {
         this.props.history.push('/patients');
     }
+
     render() {
-        //let bornDate = this.state.bornDate;
-        const isWeekday = date => {
-            const day = date.getDay(date);
-            return day !== 0 && day !== 6;
-        };
-        let { name, lastname,phoneNo, email, bornDate, gender, city } = this.state;
+        const { name, lastname, phoneNo, email, bornDate, gender, city, cities } = this.state;
+
         return (
             <div className="row">
                 <div className="col-sm-12">
                     <button
                         className="btn btn-danger"
-                        onClick={() => this.back()}> Back </button>
+                        onClick={() => this.back()}>
+                        Back
+                    </button>
                     <hr />
                 </div>
+
                 <div className="col-sm-8">
-                    <h2 className="text-center">ADD PATİENT</h2>
-                    <form>
+                    <h2 className="text-center">ADD PATIENT</h2>
+
+                    <form onSubmit={this.saveUser}>
                         <div className="form-group">
                             <label>Name *</label>
-                            <input type="text" placeholder="name" name="name" className="form-control" value={name} onChange={e => this.onChangeData('name', e.target.value)} />
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={name}
+                                onChange={e => this.onChangeData('name', e.target.value)}
+                            />
                         </div>
+
                         <div className="form-group">
                             <label>Last Name *</label>
-                            <input placeholder="Last name" name="lastname" className="form-control" value={lastname} onChange={e => this.onChangeData('lastname', e.target.value)} />
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={lastname}
+                                onChange={e => this.onChangeData('lastname', e.target.value)}
+                            />
                         </div>
+
                         <div className="form-group">
                             <label>Phone *</label>
-                            <input placeholder="Last name" name="phone No" className="form-control" value={phoneNo} onChange={e => this.onChangeData('phoneNo', e.target.value)} />
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={phoneNo}
+                                onChange={e => this.onChangeData('phoneNo', e.target.value)}
+                            />
                         </div>
+
                         <div className="form-group">
-                            <label>Email:</label>
-                            <input placeholder="Email" name="email" className="form-control" value={email} onChange={e => this.onChangeData('email', e.target.value)} />
+                            <label>Email</label>
+                            <input
+                                type="email"
+                                className="form-control"
+                                value={email}
+                                onChange={e => this.onChangeData('email', e.target.value)}
+                            />
                         </div>
+
                         <div className="form-group">
                             <label>Born Date *</label>
-                            <div className="form-group">
-                                <DatePicker
-                                    className="form-control"
-                                    // showTimeSelect
-                                    showTimeInput
-                                    selected={bornDate}
-                                    onChange={e => this.onChangeData('bornDate', e)}
-                                    filterDate={isWeekday}          // disable weekend
-                                    timeIntervals={15}              // time range around 15 min
-                                    //showWeekNumbers               // show week number
-                                    timeFormat="HH:mm"              // show time format
-                                    dateFormat="yyyy/MM/dd h:mm aa" // show all of time format
-                                />
-                            </div>
+                            <DatePicker
+                                className="form-control"
+                                selected={bornDate}
+                                onChange={date => this.onChangeData('bornDate', date)}
+                                dateFormat="yyyy/MM/dd"
+                            />
                         </div>
+
                         <div className="form-group">
                             <label>Gender *</label>
-                            <select className="form-control"
+                            <select
+                                className="form-control"
                                 value={gender}
-                                onChange={e => this.onChangeData('gender', e.target.value)} >
+                                onChange={e => this.onChangeData('gender', e.target.value)}
+                            >
                                 <option value="Male">Male</option>
                                 <option value="Female">Female</option>
                             </select>
                         </div>
+
                         <div className="form-group">
                             <label>City *</label>
-                            <select className="form-control"
+                            <select
+                                className="form-control"
                                 value={city}
-                                onChange={e => this.onChangeData('city', e.target.value)} >
-                                {this.state.cities.map(city =>
-                                    <option key={city} value={city}>{city}</option>
+                                onChange={e => this.onChangeData('city', e.target.value)}
+                            >
+                                {cities.map(c =>
+                                    <option key={c} value={c}>{c}</option>
                                 )}
                             </select>
                         </div>
 
-                        <button className="btn btn-success" type="button" onClick={this.saveUser}>Save</button>
+                        <button type="submit" className="btn btn-success">
+                            Save
+                        </button>
                     </form>
-                </div>
-                <div className="col"></div>
-                <div className="col-lg-3">
-                    <img style={{ height: 200 }} src="https://i1.wp.com/www.nosinmiubuntu.com/wp-content/uploads/2013/02/New-Database.png?w=770" alt="" />
-                </div>
-                <div className="col-sm-12">
-                    <hr />
-                    <hr />
-                    <hr />
                 </div>
             </div>
         );

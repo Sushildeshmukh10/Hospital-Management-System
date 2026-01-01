@@ -70,10 +70,14 @@ class PatientDetail extends Component {
                         <li className="list-group-item"><b>Age : </b>
                             {age !== null ? age : null}
                         </li>
-                        <li className="list-group-item"><b>Born Date : </b>
-                            {this.props.bornDate !== null ?
-                                <Moment format="YYYY / MM / DD  HH:mm"> {this.props.bornDate} </Moment> : null
-                            }
+                       <li className="list-group-item"><b>Born Date : </b>
+                            {this.props.bornDate ? (
+                                <Moment format="YYYY / MM / DD  HH:mm">
+                                {this.props.bornDate}
+                                </Moment>
+                                 ) : (
+                                "N/A"
+                            )}
                         </li>
                         <li className="list-group-item"><b>Email : </b>{this.props.email}</li>
                         <li className="list-group-item"><b>City : </b>{this.props.city}</li>

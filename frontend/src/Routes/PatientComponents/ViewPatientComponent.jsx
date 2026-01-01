@@ -62,11 +62,15 @@ export default class ViewPatientComponent extends Component {
                     <button
                         className="btn btn-danger"
                         onClick={() => this.back()}> Back </button>
-                    <button
-                        type="button"
-                        className="btn btn-warning ml-1"
-                        onClick={() => this.viewProblemForm(patient.patientid)}
-                        data-whatever="@getbootstrap">Add Problem</button>
+                   {patient && (
+                        <button
+                            type="button"
+                            className="btn btn-warning ml-1"
+                            onClick={() => this.viewProblemForm(patient.patientid)}
+                             >
+                            Add Problem
+                        </button>
+                    )}
  
                     <hr />
                 </div>
